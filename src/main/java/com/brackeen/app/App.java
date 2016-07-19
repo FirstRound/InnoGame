@@ -55,7 +55,7 @@ import javax.swing.WindowConstants;
 public abstract class App extends Applet implements MouseListener, MouseMotionListener,
         KeyListener, FocusListener {
 
-    private static final InheritableThreadLocal<App> APP = new InheritableThreadLocal<>();
+    private static final InheritableThreadLocal<App> APP = new InheritableThreadLocal<App>();
 
     public static App getApp() {
         return APP.get();
@@ -114,13 +114,13 @@ public abstract class App extends Applet implements MouseListener, MouseMotionLi
     private int autoPixelScaleBaseHeight = 240;
     private BufferedImage pixelScaleBufferedImage;
 
-    private final List<String> log = new ArrayList<>();
+    private final List<String> log = new ArrayList<String>();
 
-    private final HashMap<String, WeakReference<BufferedImage>> imageCache = new HashMap<>();
-    private final HashMap<String, AudioBuffer> loadedAudio = new HashMap<>();
-    private final Stack<Scene> sceneStack = new Stack<>();
-    private List<View> prevViewsWithTouchInside = new ArrayList<>();
-    private List<View> currViewsWithTouchInside = new ArrayList<>();
+    private final HashMap<String, WeakReference<BufferedImage>> imageCache = new HashMap<String, WeakReference<BufferedImage>>();
+    private final HashMap<String, AudioBuffer> loadedAudio = new HashMap<String, AudioBuffer>();
+    private final Stack<Scene> sceneStack = new Stack<Scene>();
+    private List<View> prevViewsWithTouchInside = new ArrayList<View>();
+    private List<View> currViewsWithTouchInside = new ArrayList<View>();
     private BufferStrategy bufferStrategy;
     private Canvas canvas;
     private int mouseX = -1;
@@ -233,8 +233,7 @@ public abstract class App extends Applet implements MouseListener, MouseMotionLi
             Class params[] = new Class[]{Window.class, Boolean.TYPE};
             Method method = util.getMethod("setWindowCanFullScreen", params);
             method.invoke(util, window, true);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException |
-                IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
+        } catch (Exception ex) {
             // Ignore
         }
     }
@@ -588,7 +587,7 @@ public abstract class App extends Applet implements MouseListener, MouseMotionLi
                 if (url != null) {
                     image = ImageIO.read(url);
                     if (image != null) {
-                        imageCache.put(imageName, new WeakReference<>(image));
+                        imageCache.put(imageName, new WeakReference<BufferedImage>(image));
                     }
                 }
             } catch (IOException ex) {

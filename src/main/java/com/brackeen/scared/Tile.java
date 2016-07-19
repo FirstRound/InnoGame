@@ -58,7 +58,7 @@ public class Tile {
             entity.getTile().removeEntity(entity);
         }
         if (entities == null) {
-            entities = new ArrayList<>();
+            entities = new ArrayList<Entity>();
         }
         entities.add(entity);
         entity.setTile(this);

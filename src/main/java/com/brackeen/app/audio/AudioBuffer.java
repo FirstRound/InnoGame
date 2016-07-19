@@ -72,7 +72,8 @@ public class AudioBuffer {
         // Read input data
         AudioFormat format;
         byte[] data;
-        try (AudioInputStream is = AudioSystem.getAudioInputStream(url)) {
+        try {
+            AudioInputStream is = AudioSystem.getAudioInputStream(url);
             format = is.getFormat();
             if (format == null) {
                 return null;
@@ -85,7 +86,7 @@ public class AudioBuffer {
                 length = -1;
             }
             data = readFully(is, length);
-        } catch (IllegalArgumentException | UnsupportedAudioFileException ex) {
+        } catch (Exception ex) {
             // org.classpath.icedtea.pulseaudio may throw IllegalArgumentException?
             throw new IOException(ex);
         }

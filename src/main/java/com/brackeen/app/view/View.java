@@ -23,7 +23,7 @@ import java.util.List;
 public class View {
 
     private View superview = null;
-    private final List<View> subviews = new ArrayList<>();
+    private final List<View> subviews = new ArrayList<View>();
     private Color backgroundColor = null;
     private float x = 0;
     private float y = 0;
@@ -272,7 +272,7 @@ public class View {
     }
 
     public void removeAllSubviews() {
-        for (View subview : new ArrayList<>(subviews)) {
+        for (View subview : new ArrayList<View>(subviews)) {
             subview.removeFromSuperview();
         }
         subviews.clear();

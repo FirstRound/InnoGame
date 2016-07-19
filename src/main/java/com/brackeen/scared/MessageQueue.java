@@ -21,7 +21,7 @@ public class MessageQueue {
 
     public MessageQueue(int size) {
         maxSize = size;
-        messages = new ArrayList<>();
+        messages = new ArrayList<Message>();
     }
 
     public void tick() {

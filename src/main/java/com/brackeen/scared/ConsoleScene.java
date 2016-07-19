@@ -13,8 +13,8 @@ public class ConsoleScene extends BaseConsoleScene {
     private static final int MAX_COMMAND_HISTORY = 200;
     private static final String PROMPT = "] ";
 
-    private static List<String> originalCommandHistory = new ArrayList<>();
-    private static List<String> editedCommandHistory = new ArrayList<>();
+    private static List<String> originalCommandHistory = new ArrayList<String>();
+    private static List<String> editedCommandHistory = new ArrayList<String>();
 
     private final GameScene gameScene;
     private String newCommandLine = "";

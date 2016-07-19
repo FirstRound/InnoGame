@@ -106,7 +106,7 @@ public class AudioEngine {
         private final AtomicBoolean running = new AtomicBoolean(true);
 
         private Mixer mixer;
-        private final List<AudioStream> streams = new ArrayList<>();
+        private final List<AudioStream> streams = new ArrayList<AudioStream>();
 
         private Context(float frameRate) {
             audioFormat = new AudioFormat(frameRate, 16, 2, true, false);
@@ -184,7 +184,7 @@ public class AudioEngine {
                         if (line.isOpen()) {
                             streams.add(new AudioStream(audioFormat, line));
                         }
-                    } catch (LineUnavailableException | IllegalArgumentException ex) {
+                    } catch (Exception ex) {
                         // Ignore
                     }
                 }

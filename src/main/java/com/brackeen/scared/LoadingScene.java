@@ -11,9 +11,9 @@ import java.util.List;
 
 public class LoadingScene extends BaseConsoleScene {
 
-    private final HashMap<String, SoftTexture> textureCache = new HashMap<>();
+    private final HashMap<String, SoftTexture> textureCache = new HashMap<String, SoftTexture>();
     private List<Runnable> itemsToLoad;
-    private List<BufferedImage> loadedAssets = new ArrayList<>(); // Keep a reference until GameScene is loaded
+    private List<BufferedImage> loadedAssets = new ArrayList<BufferedImage>(); // Keep a reference until GameScene is loaded
     private int itemsLoaded = 0;
     private boolean loadNextItem = false;
 
@@ -32,7 +32,7 @@ public class LoadingScene extends BaseConsoleScene {
         App.log("Scared " + version);
         App.log("Java " + System.getProperty("java.version"));
 
-        itemsToLoad = new ArrayList<>();
+        itemsToLoad = new ArrayList<Runnable>();
         itemsToLoad.add(new Runnable() {
             @Override
             public void run() {

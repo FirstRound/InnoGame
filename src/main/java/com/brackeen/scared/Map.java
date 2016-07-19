@@ -30,8 +30,8 @@ public class Map {
 
     private final MessageQueue messageQueue;
     private final Player player;
-    private final List<Entity> entities = new ArrayList<>();
-    private final List<Action> actions = new ArrayList<>();
+    private final List<Entity> entities = new ArrayList<Entity>();
+    private final List<Action> actions = new ArrayList<Action>();
     private final SoftTexture exitButtonOnTexture;
     private final SoftTexture generatorOnTexture;
     private SoftTexture defaultFloorTexture;
@@ -441,7 +441,7 @@ public class Map {
 
     public List<Entity> getCollisions(Class<? extends Entity> entityClass,
                                       float x1, float y1, float x2, float y2) {
-        List<Entity> hitEntities = new ArrayList<>();
+        List<Entity> hitEntities = new ArrayList<Entity>();
 
         float dx = x2 - x1;
         float dy = y2 - y1;

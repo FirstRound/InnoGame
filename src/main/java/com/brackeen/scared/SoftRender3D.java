@@ -134,7 +134,7 @@ public class SoftRender3D extends View {
 
     private Map map;
     private SoftTexture background;
-    private final List<Tile> visibleFloors = new ArrayList<>();
+    private final List<Tile> visibleFloors = new ArrayList<Tile>();
 
     private final SoftTexture[] doorTextures = new SoftTexture[4];
     private final SoftTexture doorSideTexture;
@@ -629,7 +629,7 @@ public class SoftRender3D extends View {
         float sinAngle = (float) Math.sin(angleToRadians(cameraAngle));
 
         // Get visible objects
-        List<Entity> visibleEntities = new ArrayList<>();
+        List<Entity> visibleEntities = new ArrayList<Entity>();
         for (Tile tile : visibleFloors) {
             tile.renderVisible = 0;
             List<Entity> entities = tile.getEntities();
