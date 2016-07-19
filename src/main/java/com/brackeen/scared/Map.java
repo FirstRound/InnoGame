@@ -40,6 +40,8 @@ public class Map {
     private boolean exitFound = false;
     private Tile lastCollidedWall;
 
+    private final List<Enemy>  enemies = new ArrayList<Enemy>();
+
     private int numSecrets = 0;
     private int numEnemies = 0;
 
@@ -156,7 +158,9 @@ public class Map {
                             break;
                         case '^':
                             tile.type = Tile.TYPE_NOTHING;
-                            addEntity(new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f, 1));
+                            Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f, 1);
+                            addEntity(enemy);
+                            enemies.add(enemy);
                             numEnemies++;
                             break;
                         case 'b':
@@ -310,6 +314,10 @@ public class Map {
         return player;
     }
 
+    public List<Enemy> getEnemies() {
+        return enemies;
+    }
+
     public boolean isElectricityOn() {
         return electricityOn;
     }
@@ -322,9 +330,6 @@ public class Map {
         return width;
     }
 
-    public int getHeight() {
-        return height;
-    }
 
     public int getNumEnemies() {
         return numEnemies;

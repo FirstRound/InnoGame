@@ -14,7 +14,7 @@ public class Main extends App {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 Main main = new Main();
-                main.initFrame(640, 480);
+                main.initFrame(1000, 700);
             }
         });
     }

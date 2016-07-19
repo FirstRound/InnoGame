@@ -6,6 +6,7 @@ import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Stats;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Enemy extends Entity {
@@ -44,8 +45,9 @@ public class Enemy extends Entity {
     private int ticks;
     private double aimAngle;
 
-    private boolean playerVisibilityNeedsCalculation;
-    private boolean isPlayerVisible;
+    private boolean enemyVisibilityNeedsCalculation;
+    private boolean isEnemyVisible;
+    private int kills = 0;
 
     public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y, int type) {
         super(0.25f, x, y);
@@ -129,31 +131,49 @@ public class Enemy extends Entity {
         return true;
     }
 
-    private boolean isPlayerVisible(float angleToPlayer) {
-        if (playerVisibilityNeedsCalculation) {
-            playerVisibilityNeedsCalculation = false;
-            isPlayerVisible = false;
-            Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(angleToPlayer));
+    private boolean isEnemyVisible(float angleToEnemy) {
+        if (enemyVisibilityNeedsCalculation) {
+            enemyVisibilityNeedsCalculation = false;
+            isEnemyVisible = false;
+            Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(angleToEnemy));
             if (point != null) {
-                List<Entity> playerHit = map.getCollisions(Player.class, getX(), getY(), point.x, point.y);
+                List<Entity> playerHit = map.getCollisions(Enemy.class, getX(), getY(), point.x, point.y);
                 if (playerHit.size() > 0) {
-                    isPlayerVisible = true;
+                    isEnemyVisible = true;
                 }
             }
         }
-        return isPlayerVisible;
+        return isEnemyVisible;
+    }
+
+    private Enemy getNearestEnemy() {
+        List<Enemy> enemies = map.getEnemies();
+        double max_distance = -1;
+        Enemy nearest = null;
+        double x = getX(), y = getY();
+        for (Enemy enemy : enemies) {
+            double tmp_x = enemy.getX(), tmp_y = enemy.getY();
+            double cur_distance = Point2D.distance(x, y, tmp_x, tmp_y);
+            if (max_distance < cur_distance) {
+                max_distance = cur_distance;
+                nearest = enemy;
+            }
+        }
+        return nearest;
     }
 
     @Override
     public void tick() {
-        playerVisibilityNeedsCalculation = true;
-        Player player = map.getPlayer();
+        enemyVisibilityNeedsCalculation = true;
+        //Player player = map.getPlayer();
+        Enemy nearest_enemy = getNearestEnemy();
+
 
         float stepx = 0;
         float stepy = 0;
-        float dx = player.getX() - getX();
-        float dy = player.getY() - getY();
-        float angleToPlayer = (float) Math.atan2(dy, dx);
+        float dx = nearest_enemy.getX() - getX();
+        float dy = nearest_enemy.getY() - getY();
+        float angleToEnemy = (float) Math.atan2(dy, dx);
 
         if ((ticksRemaining <= 0 || state == STATE_TERMINATE) && Math.abs(dx) < 2f && Math.abs(dy) < 2f && state < STATE_READY) {
             // Player is very close - move immediately or fire
@@ -187,7 +207,7 @@ public class Enemy extends Entity {
                     setState(STATE_MOVE_FAR_RIGHT);
                     break;
                 case 5:
-                    if (isPlayerVisible(angleToPlayer)) {
+                    if (isEnemyVisible(angleToEnemy)) {
                         setState(STATE_READY);
                     } else {
                         setState(STATE_TERMINATE);
@@ -198,34 +218,34 @@ public class Enemy extends Entity {
 
         switch (state) {
             case STATE_ASLEEP:
-                if (isPlayerVisible(angleToPlayer)) {
+                if (isEnemyVisible(angleToEnemy)) {
                     setState(STATE_TERMINATE);
                 }
                 break;
 
             case STATE_TERMINATE:
-                stepx = (float) Math.cos(angleToPlayer) * STEP_SIZE;
-                stepy = (float) Math.sin(angleToPlayer) * STEP_SIZE;
+                stepx = (float) Math.cos(angleToEnemy) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy) * STEP_SIZE;
                 break;
 
             case STATE_MOVE_LEFT:
-                stepx = (float) Math.cos(angleToPlayer + Math.PI / 4) * STEP_SIZE;
-                stepy = (float) Math.sin(angleToPlayer + Math.PI / 4) * STEP_SIZE;
+                stepx = (float) Math.cos(angleToEnemy + Math.PI / 4) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy + Math.PI / 4) * STEP_SIZE;
                 break;
 
             case STATE_MOVE_RIGHT:
-                stepx = (float) Math.cos(angleToPlayer - Math.PI / 4) * STEP_SIZE;
-                stepy = (float) Math.sin(angleToPlayer - Math.PI / 4) * STEP_SIZE;
+                stepx = (float) Math.cos(angleToEnemy - Math.PI / 4) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy - Math.PI / 4) * STEP_SIZE;
                 break;
 
             case STATE_MOVE_FAR_LEFT:
-                stepx = (float) Math.cos(angleToPlayer + Math.PI / 2) * STEP_SIZE;
-                stepy = (float) Math.sin(angleToPlayer + Math.PI / 2) * STEP_SIZE;
+                stepx = (float) Math.cos(angleToEnemy + Math.PI / 2) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy + Math.PI / 2) * STEP_SIZE;
                 break;
 
             case STATE_MOVE_FAR_RIGHT:
-                stepx = (float) Math.cos(angleToPlayer - Math.PI / 2) * STEP_SIZE;
-                stepy = (float) Math.sin(angleToPlayer - Math.PI / 2) * STEP_SIZE;
+                stepx = (float) Math.cos(angleToEnemy - Math.PI / 2) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy - Math.PI / 2) * STEP_SIZE;
                 break;
 
             case STATE_READY:
@@ -236,8 +256,8 @@ public class Enemy extends Entity {
 
             case STATE_AIM:
                 if (ticksRemaining <= 0) {
-                    if (player.isAlive() && isPlayerVisible(angleToPlayer)) {
-                        aimAngle = angleToPlayer;
+                    if (nearest_enemy.isAlive() && isEnemyVisible(angleToEnemy)) {
+                        aimAngle = angleToEnemy;
                         setState(STATE_FIRE);
                     } else {
                         setState(STATE_TERMINATE);
@@ -246,21 +266,19 @@ public class Enemy extends Entity {
                 break;
 
             case STATE_FIRE:
-                if (player.isFreezeEnemies()) {
-                    setState(STATE_TERMINATE);
-                } else if (ticksRemaining <= 0) {
+                if (ticksRemaining <= 0) {
                     App.getApp().getAudio("/sound/laser0.wav").play();
                     stats.numEnemyShotsFired++;
 
                     // fire shot
-                    if (isPlayerVisible(angleToPlayer)) {
+                    if (isEnemyVisible(angleToEnemy)) {
                         Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(aimAngle));
                         if (point != null) {
                             List<Entity> playerHit = map.getCollisions(Player.class, getX(), getY(), point.x, point.y);
                             if (playerHit.size() > 0) {
                                 // here, diffAngle is the differnce between the angle the
                                 // robot aimed at and the angle the player is currently at
-                                double diffAngle = Math.abs(aimAngle - angleToPlayer);
+                                double diffAngle = Math.abs(aimAngle - angleToEnemy);
                                 int hitPoints = 0;
                                 if (diffAngle < .04) { // about 2.3 degrees
                                     hitPoints = 15 + (int) Math.round(Math.random() * 7);
@@ -268,7 +286,7 @@ public class Enemy extends Entity {
                                     hitPoints = 3 + (int) Math.round(Math.random() * 5);
                                 }
 
-                                boolean actuallyHurt = player.hurt(hitPoints);
+                                boolean actuallyHurt = nearest_enemy.hurt(hitPoints);
                                 if (actuallyHurt) {
                                     stats.numEnemyShotsFiredHit++;
                                 }
@@ -292,7 +310,7 @@ public class Enemy extends Entity {
                     } else {
                         setState(STATE_ASLEEP);
                         // immediate fire
-                        aimAngle = angleToPlayer;
+                        aimAngle = angleToEnemy;
                         setState(STATE_FIRE);
                     }
 
@@ -302,12 +320,12 @@ public class Enemy extends Entity {
             case STATE_DYING:
                 if (ticksRemaining <= 0) {
                     setState(STATE_DEAD);
-                    player.setKills(player.getKills() + 1);
+                    nearest_enemy.setKills(nearest_enemy.getKills() + 1);
                 }
                 break;
         }
 
-        if (!player.isFreezeEnemies()) {
+        if (true) { //TODO: change this!
             float newX = getX() + stepx;
             float newY = getY() + stepy;
 
@@ -328,6 +346,19 @@ public class Enemy extends Entity {
         }
         setTexture(textures[textureIndex]);
     }
+
+    private boolean isAlive() {
+        return state != STATE_DEAD;
+    }
+
+    private void setKills(int i) {
+        this.kills = i;
+    }
+
+    private int getKills() {
+        return kills;
+    }
+
 
     private boolean isCollision(float x, float y) {
         int minTileX = (int) (x - getRadius());
