@@ -444,7 +444,49 @@ public class Map {
         }
     }
 
-    public List<Entity> getCollisions(Class<? extends Entity> entityClass,
+        public List<Entity> getEnemyCollisions(Enemy enemy, float x1, float y1, float x2, float y2) {
+            List<Entity> hitEntities = new ArrayList<Entity>();
+            float dx = x2 - x1;
+            float dy = y2 - y1;
+            float segmentLengthSq = dx * dx + dy * dy;
+            List<? extends Entity> entitiesToSearch;
+            entitiesToSearch = Collections.singletonList(enemy);
+
+
+            for (Entity entity : entitiesToSearch) {
+                float radius = entity.getRadius();
+                if (radius > 0) {
+
+                    // Point-to-line distance
+                    float pointX = entity.getX();
+                    float pointY = entity.getY();
+                    dx = pointX - x1;
+                    dy = pointY - y1;
+
+                    float u = (dx * (x2 - x1) + dy * (y2 - y1)) / segmentLengthSq;
+
+                    if (u < 0 || u > 1) {
+                        // Not within the segment
+                        continue;
+                    }
+
+                    float intersectionX = x1 + u * (x2 - x1);
+                    float intersectionY = y1 + u * (y2 - y1);
+
+                    dx = pointX - intersectionX;
+                    dy = pointY - intersectionY;
+                    float distToRaySq = dx * dx + dy * dy;
+                    float radiusSq = radius * radius;
+                    if (distToRaySq <= radiusSq) {
+                        hitEntities.add(entity);
+                    }
+                }
+            }
+
+            return hitEntities;
+        }
+
+        public List<Entity> getCollisions(Class<? extends Entity> entityClass,
                                       float x1, float y1, float x2, float y2) {
         List<Entity> hitEntities = new ArrayList<Entity>();
 

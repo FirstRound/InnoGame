@@ -63,8 +63,8 @@ public class Enemy extends Entity {
             case 1:
             default:
                 health = 20;
-                STATE_TICKS[STATE_READY] = 18;
-                STATE_TICKS[STATE_AIM] = 40;
+                STATE_TICKS[STATE_READY] = 10;
+                STATE_TICKS[STATE_AIM] = 24;
                 p = .1;
                 break;
 
@@ -102,6 +102,7 @@ public class Enemy extends Entity {
     }
 
     public boolean hurt(int points) {
+        System.out.print(health + " ");
         if (health <= 0) {
             return false;
         } else {
@@ -139,6 +140,7 @@ public class Enemy extends Entity {
             if (point != null) {
                 List<Entity> playerHit = map.getCollisions(Enemy.class, getX(), getY(), point.x, point.y);
                 if (playerHit.size() > 0) {
+                    System.out.println("Visible!");
                     isEnemyVisible = true;
                 }
             }
@@ -146,7 +148,7 @@ public class Enemy extends Entity {
         return isEnemyVisible;
     }
 
-    private Enemy getNearestEnemy() {
+    private Enemy getNearestEnemy() {//TODO: make graph search
         List<Enemy> enemies = map.getEnemies();
         double max_distance = -1;
         Enemy nearest = null;
@@ -269,7 +271,6 @@ public class Enemy extends Entity {
                 if (ticksRemaining <= 0) {
                     App.getApp().getAudio("/sound/laser0.wav").play();
                     stats.numEnemyShotsFired++;
-
                     // fire shot
                     if (isEnemyVisible(angleToEnemy)) {
                         Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(aimAngle));
@@ -293,6 +294,7 @@ public class Enemy extends Entity {
                             }
                         }
                     }
+
 
                     setState(STATE_TERMINATE);
                 }
