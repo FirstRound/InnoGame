@@ -6,7 +6,6 @@ import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Stats;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Enemy extends Entity {
@@ -271,6 +270,7 @@ public class Enemy extends Entity {
                 if (ticksRemaining <= 0) {
                     App.getApp().getAudio("/sound/laser0.wav").play();
                     stats.numEnemyShotsFired++;
+                    /*
                     // fire shot
                     if (isEnemyVisible(angleToEnemy)) {
                         Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(aimAngle));
@@ -294,6 +294,7 @@ public class Enemy extends Entity {
                             }
                         }
                     }
+                    */
 
 
                     setState(STATE_TERMINATE);
