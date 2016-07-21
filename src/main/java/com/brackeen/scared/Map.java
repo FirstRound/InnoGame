@@ -223,6 +223,13 @@ public class Map {
         } catch (NumberFormatException ex) {
             throw new IOException(ex);
         }
+        for (Enemy enemy : enemies) {
+            enemy.initMoveController();
+        }
+    }
+
+    public Tile[][] getTilesMatrix() {
+        return tiles;
     }
 
     public void setMessage(String message) {

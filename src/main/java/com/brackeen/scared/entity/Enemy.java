@@ -4,8 +4,10 @@ import com.brackeen.app.App;
 import com.brackeen.scared.Map;
 import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Stats;
+import com.brackeen.scared.movings.EnemyMovingController;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Enemy extends Entity {
@@ -48,12 +50,16 @@ public class Enemy extends Entity {
     private boolean isEnemyVisible;
     private int kills = 0;
 
+    private EnemyMovingController movingController = null;
+
     public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y, int type) {
         super(0.25f, x, y);
         this.textures = textures;
         this.map = map;
         this.stats = stats;
         setTexture(textures[0]);
+
+
         //setTextureScale(getTextureScale() / 2); // For 128x128 textures
         setZ(-4f / DEFAULT_PIXELS_PER_TILE);
         setState(STATE_ASLEEP);
@@ -90,6 +96,11 @@ public class Enemy extends Entity {
         }
     }
 
+    public void initMoveController() {
+        movingController = new EnemyMovingController(map.getTilesMatrix()); 
+        movingController.setCurrentPosition(new Point2D.Double(getX(), getY()));
+    }
+
     private void setState(int state) {
         if (this.state != state) {
             this.state = state;
@@ -101,7 +112,7 @@ public class Enemy extends Entity {
     }
 
     public boolean hurt(int points) {
-        System.out.print(health + " ");
+
         if (health <= 0) {
             return false;
         } else {
@@ -139,7 +150,6 @@ public class Enemy extends Entity {
             if (point != null) {
                 List<Entity> playerHit = map.getCollisions(Enemy.class, getX(), getY(), point.x, point.y);
                 if (playerHit.size() > 0) {
-                    System.out.println("Visible!");
                     isEnemyVisible = true;
                 }
             }
@@ -149,10 +159,12 @@ public class Enemy extends Entity {
 
     private Enemy getNearestEnemy() {//TODO: make graph search
         List<Enemy> enemies = map.getEnemies();
-        double max_distance = -1;
+        double max_distance = -10;
         Enemy nearest = null;
         double x = getX(), y = getY();
         for (Enemy enemy : enemies) {
+            if (enemy == this)
+                continue;
             double tmp_x = enemy.getX(), tmp_y = enemy.getY();
             double cur_distance = Point2D.distance(x, y, tmp_x, tmp_y);
             if (max_distance < cur_distance) {
@@ -180,12 +192,12 @@ public class Enemy extends Entity {
             // Player is very close - move immediately or fire
             double pq = Math.random();
 
-            if (pq < 0.25f) {
+            if (pq < 0.1f) {
                 setState(STATE_MOVE_FAR_LEFT);
-            } else if (pq < 0.50f) {
+            } else if (pq < 0.2f) {
                 setState(STATE_MOVE_FAR_RIGHT);
             } else {
-                setState(STATE_READY);
+                setState(STATE_FIRE);
             }
         } else if (state > STATE_ASLEEP && state < STATE_READY && Math.random() < p) {
             // When moving, randomly change to another move state
@@ -270,31 +282,10 @@ public class Enemy extends Entity {
                 if (ticksRemaining <= 0) {
                     App.getApp().getAudio("/sound/laser0.wav").play();
                     stats.numEnemyShotsFired++;
-                    /*
-                    // fire shot
-                    if (isEnemyVisible(angleToEnemy)) {
-                        Point2D.Float point = map.getWallCollision(getX(), getY(), (float) Math.toDegrees(aimAngle));
-                        if (point != null) {
-                            List<Entity> playerHit = map.getCollisions(Player.class, getX(), getY(), point.x, point.y);
-                            if (playerHit.size() > 0) {
-                                // here, diffAngle is the differnce between the angle the
-                                // robot aimed at and the angle the player is currently at
-                                double diffAngle = Math.abs(aimAngle - angleToEnemy);
-                                int hitPoints = 0;
-                                if (diffAngle < .04) { // about 2.3 degrees
-                                    hitPoints = 15 + (int) Math.round(Math.random() * 7);
-                                } else if (diffAngle < .25) { // about 15 degrees
-                                    hitPoints = 3 + (int) Math.round(Math.random() * 5);
-                                }
 
-                                boolean actuallyHurt = nearest_enemy.hurt(hitPoints);
-                                if (actuallyHurt) {
-                                    stats.numEnemyShotsFiredHit++;
-                                }
-                            }
-                        }
-                    }
-                    */
+                    boolean actuallyHurt = nearest_enemy.hurt(10);
+                                
+                    
 
 
                     setState(STATE_TERMINATE);
