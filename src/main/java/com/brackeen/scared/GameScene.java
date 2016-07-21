@@ -104,10 +104,7 @@ public class GameScene extends Scene {
     private final ImageView[] keys = new ImageView[Key.NUM_KEYS];
     private View normalStats;
     private View specialStats;
-    private Label healthLabel;
-    private Label healthHeaderLabel;
-    private Label ammoLabel;
-    private Label ammoHeaderLabel;
+
     private Label enemiesLabel;
     private Label secretsLabel;
     private Label levelLabel;
@@ -187,20 +184,10 @@ public class GameScene extends Scene {
         // Health/ammo
         normalStats = new View();
         normalStats.setOpacity(hudOpacity);
-        healthLabel = new Label(scoreFont, Integer.toString(Player.DEFAULT_HEALTH));
-        healthLabel.setAnchor(0.5f, 1);
-        normalStats.addSubview(healthLabel);
-        healthHeaderLabel = new Label(messageFont, "HEALTH");
-        healthHeaderLabel.setAnchor(0.5f, 1);
-        normalStats.addSubview(healthHeaderLabel);
 
-        ammoLabel = new Label(scoreFont, Integer.toString(Player.DEFAULT_AMMO));
-        ammoLabel.setAnchor(0.5f, 1);
-        normalStats.addSubview(ammoLabel);
-        ammoHeaderLabel = new Label(messageFont, "AMMO");
-        ammoHeaderLabel.setAnchor(0.5f, 1);
-        normalStats.addSubview(ammoHeaderLabel);
-        addSubview(normalStats);
+
+
+
 
         // Secrets/enemies
         specialStats = new View();
@@ -371,11 +358,7 @@ public class GameScene extends Scene {
             keyX -= keys[i].getWidth() / 2 + UI_SPACING + 1;
         }
 
-        // Health/ammo
-        healthLabel.setLocation(UI_SPACING * 3 + scoreFont.getStringWidth("000") / 2, getHeight() - UI_SPACING);
-        healthHeaderLabel.setLocation(healthLabel.getX(), healthLabel.getY() - healthLabel.getHeight() - UI_SPACING);
-        ammoLabel.setLocation(healthLabel.getX() + UI_SPACING * 4 + scoreFont.getStringWidth("000"), getHeight() - UI_SPACING);
-        ammoHeaderLabel.setLocation(ammoLabel.getX(), ammoLabel.getY() - ammoLabel.getHeight() - UI_SPACING);
+
 
         // Secrets/level
         secretsLabel.setLocation(UI_SPACING * 3 / 2, getHeight() - UI_SPACING);
@@ -664,10 +647,7 @@ public class GameScene extends Scene {
         }
         fpsLabel.setText(String.format("%.1f fps", App.getApp().getActualFrameRate()));
         fpsLabel.sizeToFit();
-        healthLabel.setText(Integer.toString(player.getHealth()));
-        healthLabel.sizeToFit();
-        ammoLabel.setText(Integer.toString(player.getAmmo()));
-        ammoLabel.sizeToFit();
+
         levelLabel.setText("Level: " + (level + 1) + "/" + NUM_LEVELS);
         levelLabel.sizeToFit();
         secretsLabel.setText("Secrets: " + player.getSecrets() + "/" + map.getNumSecrets());
@@ -889,7 +869,7 @@ public class GameScene extends Scene {
         // Handle firing
         if (keyFire || mousePressed) {
             if (ticksUntilRefire <= 0) {
-                fire();
+                //fire();
                 ticksUntilRefire = FIRE_COUNTDOWN;
             }
         }

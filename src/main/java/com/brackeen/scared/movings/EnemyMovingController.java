@@ -31,9 +31,9 @@ public class EnemyMovingController {
 		LinkedList<Point2D> points = new LinkedList<Point2D>();
 		//move to tile center
 		points.add(new Point2D.Double(Math.abs(currentPosition.getX())+0.5,
-					Math.abs(currentPosition.getY())+0.5));
-		
-		
+				Math.abs(currentPosition.getY())+0.5));
+
+
 
 		return points;
 

@@ -1,5 +1,6 @@
 package com.brackeen.scared.entity;
 
+import com.brackeen.app.App;
 import com.brackeen.scared.Map;
 import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Stats;
@@ -8,7 +9,7 @@ import com.brackeen.scared.movings.EnemyMovingController;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-public class Enemy extends Entity {
+public class EnemyDepr extends Entity {
 
     public static final int NUM_IMAGES = 15;
 
@@ -50,7 +51,7 @@ public class Enemy extends Entity {
 
     private EnemyMovingController movingController = null;
 
-    public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y, int type) {
+    public EnemyDepr(Map map, Stats stats, SoftTexture[] textures, float x, float y, int type) {
         super(0.25f, x, y);
         this.textures = textures;
         this.map = map;
@@ -95,7 +96,7 @@ public class Enemy extends Entity {
     }
 
     public void initMoveController() {
-        movingController = new EnemyMovingController(map.getTilesMatrix()); 
+        movingController = new EnemyMovingController(map.getTilesMatrix());
         movingController.setCurrentPosition(new Point2D.Double(getX(), getY()));
     }
 
@@ -161,8 +162,7 @@ public class Enemy extends Entity {
         Enemy nearest = null;
         double x = getX(), y = getY();
         for (Enemy enemy : enemies) {
-            if (enemy == this)
-                continue;
+
             double tmp_x = enemy.getX(), tmp_y = enemy.getY();
             double cur_distance = Point2D.distance(x, y, tmp_x, tmp_y);
             if (max_distance < cur_distance) {
@@ -175,12 +175,168 @@ public class Enemy extends Entity {
 
     @Override
     public void tick() {
+        enemyVisibilityNeedsCalculation = true;
+        //Player player = map.getPlayer();
+        Enemy nearest_enemy = getNearestEnemy();
 
 
+        float stepx = 0;
+        float stepy = 0;
+        float dx = nearest_enemy.getX() - getX();
+        float dy = nearest_enemy.getY() - getY();
+        float angleToEnemy = (float) Math.atan2(dy, dx);
 
+        if ((ticksRemaining <= 0 || state == STATE_TERMINATE) && Math.abs(dx) < 2f && Math.abs(dy) < 2f && state < STATE_READY) {
+            // Player is very close - move immediately or fire
+            double pq = Math.random();
+
+            if (pq < 0.1f) {
+                setState(STATE_MOVE_FAR_LEFT);
+            } else if (pq < 0.2f) {
+                setState(STATE_MOVE_FAR_RIGHT);
+            } else {
+                setState(STATE_FIRE);
+            }
+        } else if (state > STATE_ASLEEP && state < STATE_READY && Math.random() < p) {
+            // When moving, randomly change to another move state
+            int s = (int) Math.round(Math.random() * 6);
+            switch (s) {
+                case 0:
+                default:
+                    setState(STATE_TERMINATE);
+                    break;
+                case 1:
+                    setState(STATE_MOVE_LEFT);
+                    break;
+                case 2:
+                    setState(STATE_MOVE_RIGHT);
+                    break;
+                case 3:
+                    setState(STATE_MOVE_FAR_LEFT);
+                    break;
+                case 4:
+                    setState(STATE_MOVE_FAR_RIGHT);
+                    break;
+                case 5:
+                    if (isEnemyVisible(angleToEnemy)) {
+                        setState(STATE_READY);
+                    } else {
+                        setState(STATE_TERMINATE);
+                    }
+                    break;
+            }
+        }
+
+        switch (state) {
+            case STATE_ASLEEP:
+                if (isEnemyVisible(angleToEnemy)) {
+                    setState(STATE_TERMINATE);
+                }
+                break;
+
+            case STATE_TERMINATE:
+                stepx = (float) Math.cos(angleToEnemy) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy) * STEP_SIZE;
+                break;
+
+            case STATE_MOVE_LEFT:
+                stepx = (float) Math.cos(angleToEnemy + Math.PI / 4) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy + Math.PI / 4) * STEP_SIZE;
+                break;
+
+            case STATE_MOVE_RIGHT:
+                stepx = (float) Math.cos(angleToEnemy - Math.PI / 4) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy - Math.PI / 4) * STEP_SIZE;
+                break;
+
+            case STATE_MOVE_FAR_LEFT:
+                stepx = (float) Math.cos(angleToEnemy + Math.PI / 2) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy + Math.PI / 2) * STEP_SIZE;
+                break;
+
+            case STATE_MOVE_FAR_RIGHT:
+                stepx = (float) Math.cos(angleToEnemy - Math.PI / 2) * STEP_SIZE;
+                stepy = (float) Math.sin(angleToEnemy - Math.PI / 2) * STEP_SIZE;
+                break;
+
+            case STATE_READY:
+                if (ticksRemaining <= 0) {
+                    setState(STATE_AIM);
+                }
+                break;
+
+            case STATE_AIM:
+                /*
+                if (ticksRemaining <= 0) {
+                    if (nearest_enemy.isAlive() && isEnemyVisible(angleToEnemy)) {
+                        aimAngle = angleToEnemy;
+                        setState(STATE_FIRE);
+                    } else {
+                        setState(STATE_TERMINATE);
+                    }
+                }
+                */
+                break;
+
+            case STATE_FIRE:
+                if (ticksRemaining <= 0) {
+                    App.getApp().getAudio("/sound/laser0.wav").play();
+                    stats.numEnemyShotsFired++;
+
+                    boolean actuallyHurt = nearest_enemy.hurt(10);
+
+                    setState(STATE_TERMINATE);
+                }
+
+                break;
+
+            case STATE_HURT:
+                if (ticksRemaining <= 0 || health <= 0) {
+
+                    if (health <= 0) {
+                        App.getApp().getAudio("/sound/enemy_dead.wav").play();
+                        setState(STATE_DYING);
+                    } else if (Math.random() < .666) {
+                        setState(STATE_TERMINATE);
+                    } else {
+                        setState(STATE_ASLEEP);
+                        // immediate fire
+                        aimAngle = angleToEnemy;
+                        setState(STATE_FIRE);
+                    }
+
+                }
+                break;
+
+            case STATE_DYING:
+                if (ticksRemaining <= 0) {
+                    setState(STATE_DEAD);
+                    //nearest_enemy.setKills(nearest_enemy.getKills() + 1);
+                }
+                break;
+        }
+
+        if (true) { //TODO: change this!
+            float newX = getX() + stepx;
+            float newY = getY() + stepy;
+
+            if (!isCollision(newX, newY)) {
+                setLocation(newX, newY);
+            } else if (!isCollision(newX, getY())) {
+                setX(newX);
+            } else if (!isCollision(getX(), newY)) {
+                setY(newY);
+            }
+        }
+
+        ticksRemaining--;
+        ticks++;
+        int textureIndex = STATE_TEXTURE[state];
+        if (state <= LAST_STATE_WITH_ANIM && ((ticks / 12) & 1) == 0) {
+            textureIndex++;
+        }
+        setTexture(textures[textureIndex]);
     }
-
-
 
     private boolean isAlive() {
         return state != STATE_DEAD;
