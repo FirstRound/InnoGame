@@ -7,7 +7,6 @@ import com.brackeen.scared.Stats;
 import com.brackeen.scared.movings.EnemyMovingController;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Enemy extends Entity {

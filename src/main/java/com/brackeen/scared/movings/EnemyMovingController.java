@@ -1,15 +1,9 @@
 package com.brackeen.scared.movings;
 
-import com.brackeen.app.App;
-import com.brackeen.scared.Map;
-import com.brackeen.scared.SoftTexture;
-import com.brackeen.scared.Stats;
 import com.brackeen.scared.Tile;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 public class EnemyMovingController {
 
@@ -36,7 +30,8 @@ public class EnemyMovingController {
 	private LinkedList<Point2D> getOptimalWay(Point2D from, Point2D to) {
 		LinkedList<Point2D> points = new LinkedList<Point2D>();
 		//move to tile center
-		points.add(new Point2D.Double(Math.abs(currentPosition.getX())+0.5), Math.abs(currentPosition.getY())+0.5));
+		points.add(new Point2D.Double(Math.abs(currentPosition.getX())+0.5,
+					Math.abs(currentPosition.getY())+0.5));
 		
 		
 
