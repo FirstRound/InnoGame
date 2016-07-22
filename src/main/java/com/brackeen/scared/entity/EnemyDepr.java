@@ -4,7 +4,7 @@ import com.brackeen.app.App;
 import com.brackeen.scared.Map;
 import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Stats;
-import com.brackeen.scared.movings.EnemyMovingController;
+import com.brackeen.scared.controllers.EnemyMovingController;
 
 import java.awt.geom.Point2D;
 import java.util.List;

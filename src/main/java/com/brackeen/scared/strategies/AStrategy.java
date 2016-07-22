@@ -1,91 +1,104 @@
 package com.brackeen.scared.strategies;
 
+import com.brackeen.scared.action.SpecialAction;
+
+import java.util.HashMap;
+
 /**
  * Created by pisatel on 21.07.16.
  */
 public class AStrategy {
-    private double attack;
-    private double defense;
-    private double speed;
-    private double reaction;
-    private double fear;
-    private double angry;
-    private double pain;
-    private double risk;
+
+    HashMap<String, Double> fields = new HashMap<String, Double>();
+
+    public AStrategy(){}
 
     public AStrategy(double attack, double defense, double speed, double reaction,
                         double fear, double angry, double pain, double risk) {
-        this.angry = angry;
-        this.attack = attack;
-        this.risk = risk;
-        this.defense = defense;
-        this.fear = fear;
-        this.speed = speed;
-        this.reaction = reaction;
-        this.pain = pain;
+        fields.put("attack", attack);
+        fields.put("defense", defense);
+        fields.put("speed", speed);
+        fields.put("reaction", reaction);
+        fields.put("fear", fear);
+        fields.put("angry", angry);
+        fields.put("pain", pain);
+        fields.put("risk", risk);
+    }
+
+    public SpecialAction useSkill(){
+        return null;
     }
 
     public double getAttack() {
-        return attack;
+        return fields.get("attack");
     }
 
     public void setAttack(double attack) {
-        this.attack = attack;
+        fields.put("attack", attack);
     }
 
     public double getDefense() {
-        return defense;
+        return fields.get("defense");
     }
 
     public void setDefense(double defense) {
-        this.defense = defense;
+        fields.put("defense", defense);
     }
 
     public double getSpeed() {
-        return speed;
+        return fields.get("speed");
     }
 
     public void setSpeed(double speed) {
-        this.speed = speed;
+        fields.put("speed", speed);
     }
 
     public double getReaction() {
-        return reaction;
+        return fields.get("reaction");
     }
 
     public void setReaction(double reaction) {
-        this.reaction = reaction;
+        fields.put("reaction", reaction);
     }
 
     public double getFear() {
-        return fear;
+        return fields.get("fear");
     }
 
     public void setFear(double fear) {
-        this.fear = fear;
+        fields.put("fear", fear);
     }
 
     public double getAngry() {
-        return angry;
+        return fields.get("angry");
     }
 
     public void setAngry(double angry) {
-        this.angry = angry;
+        fields.put("angry", angry);
     }
 
     public double getPain() {
-        return pain;
+        return fields.get("pain");
     }
 
     public void setPain(double pain) {
-        this.pain = pain;
+        fields.put("pain", pain);
     }
 
     public double getRisk() {
-        return risk;
+        return fields.get("risk");
     }
 
     public void setRisk(double risk) {
-        this.risk = risk;
+        fields.put("risk", risk);
+    }
+
+    public void setValue(String field, double value) {
+        fields.put(field, value);
+    }
+
+    @Override
+    public String toString() {
+        return fields.toString();
     }
 }

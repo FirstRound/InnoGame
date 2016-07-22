@@ -1,4 +1,4 @@
-package com.brackeen.scared.movings;
+package com.brackeen.scared.controllers;
 
 import com.brackeen.scared.Tile;
 

@@ -11,6 +11,7 @@ import com.brackeen.scared.entity.Entity;
 import com.brackeen.scared.entity.Key;
 import com.brackeen.scared.entity.MedKit;
 import com.brackeen.scared.entity.Player;
+import com.brackeen.scared.genetic.GeneticEvolution;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -41,6 +42,8 @@ public class Map {
     private Tile lastCollidedWall;
 
     private final List<Enemy>  enemies = new ArrayList<Enemy>();
+
+    private GeneticEvolution geneticEvolution = new GeneticEvolution();
 
     private int numSecrets = 0;
     private int numEnemies = 0;
@@ -223,8 +226,12 @@ public class Map {
         } catch (NumberFormatException ex) {
             throw new IOException(ex);
         }
+
+        geneticEvolution.generateStartPopulation(enemies.size());
+
         for (Enemy enemy : enemies) {
-            enemy.initMoveController();
+            enemy.setGenome(geneticEvolution.getNextGenome());
+            enemy.initDecisionController();
         }
     }
 
