@@ -5,24 +5,15 @@ import com.brackeen.scared.action.Action;
 import com.brackeen.scared.action.DoorAction;
 import com.brackeen.scared.action.GeneratorAction;
 import com.brackeen.scared.action.MovableWallAction;
-import com.brackeen.scared.entity.Ammo;
-import com.brackeen.scared.entity.Enemy;
-import com.brackeen.scared.entity.Entity;
-import com.brackeen.scared.entity.Key;
-import com.brackeen.scared.entity.MedKit;
-import com.brackeen.scared.entity.Player;
-import com.brackeen.scared.genetic.GeneticEvolution;
+import com.brackeen.scared.controllers.EnemyController;
+import com.brackeen.scared.entity.*;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Map {
 
@@ -41,12 +32,12 @@ public class Map {
     private boolean exitFound = false;
     private Tile lastCollidedWall;
 
-    private final List<Enemy>  enemies = new ArrayList<Enemy>();
-
-    private GeneticEvolution geneticEvolution = new GeneticEvolution();
+    private final LinkedList<Enemy>  enemies = new LinkedList<Enemy>();
 
     private int numSecrets = 0;
     private int numEnemies = 0;
+
+    private EnemyController enemyController = new EnemyController();
 
     public Map(HashMap<String, SoftTexture> textureCache, MessageQueue messageQueue, String mapName, Player oldPlayer, Stats stats) throws IOException {
         this.messageQueue = messageQueue;
@@ -161,7 +152,7 @@ public class Map {
                             break;
                         case '^':
                             tile.type = Tile.TYPE_NOTHING;
-                            Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f, 1);
+                            Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f);
                             addEntity(enemy);
                             enemies.add(enemy);
                             numEnemies++;
@@ -227,12 +218,12 @@ public class Map {
             throw new IOException(ex);
         }
 
-        geneticEvolution.generateStartPopulation(enemies.size());
 
-        for (Enemy enemy : enemies) {
-            enemy.setGenome(geneticEvolution.getNextGenome());
-            enemy.initDecisionController();
-        }
+        enemyController.addEnemiesList(enemies);
+        enemyController.initGenetic();
+        enemyController.setMap(this);
+
+
     }
 
     public Tile[][] getTilesMatrix() {
@@ -502,18 +493,18 @@ public class Map {
 
         public List<Entity> getCollisions(Class<? extends Entity> entityClass,
                                       float x1, float y1, float x2, float y2) {
-        List<Entity> hitEntities = new ArrayList<Entity>();
+            List<Entity> hitEntities = new ArrayList<Entity>();
 
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        float segmentLengthSq = dx * dx + dy * dy;
+            float dx = x2 - x1;
+            float dy = y2 - y1;
+            float segmentLengthSq = dx * dx + dy * dy;
 
-        List<? extends Entity> entitiesToSearch;
-        if (entityClass == Player.class) {
-            entitiesToSearch = Collections.singletonList(player);
-        } else {
-            entitiesToSearch = entities;
-        }
+            List<? extends Entity> entitiesToSearch;
+            if (entityClass == Player.class) {
+                entitiesToSearch = Collections.singletonList(player);
+            } else {
+                entitiesToSearch = entities;
+            }
 
         for (Entity entity : entitiesToSearch) {
             float radius = entity.getRadius();

@@ -41,7 +41,6 @@ public class Enemy extends Entity {
     private final Stats stats;
     private int state;
     private int health;
-    private final double p; //probability of changing states
     private int ticksRemaining;
     private int ticks;
     private double aimAngle;
@@ -53,7 +52,7 @@ public class Enemy extends Entity {
     private DecisionController decisionController = null;
     private Genome genome = null;
 
-    public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y, int type) {
+    public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y) {
         super(0.25f, x, y);
         this.textures = textures;
         this.map = map;
@@ -64,37 +63,10 @@ public class Enemy extends Entity {
         //setTextureScale(getTextureScale() / 2); // For 128x128 textures
         setZ(-4f / DEFAULT_PIXELS_PER_TILE);
         setState(STATE_ASLEEP);
+        health = 100;
+        STATE_TICKS[STATE_READY] = 10;
+        STATE_TICKS[STATE_AIM] = 24;
 
-        switch (type) {
-            case 1:
-            default:
-                health = 20;
-                STATE_TICKS[STATE_READY] = 10;
-                STATE_TICKS[STATE_AIM] = 24;
-                p = .1;
-                break;
-
-            case 2:
-                health = 30;
-                STATE_TICKS[STATE_READY] = 12;
-                STATE_TICKS[STATE_AIM] = 24;
-                p = .05;
-                break;
-
-            case 3:
-                health = 50;
-                STATE_TICKS[STATE_READY] = 6;
-                STATE_TICKS[STATE_AIM] = 18;
-                p = .1;
-                break;
-
-            case 4:
-                health = 80;
-                STATE_TICKS[STATE_READY] = 0;
-                STATE_TICKS[STATE_AIM] = 12;
-                p = .03;
-                break;
-        }
     }
 
     public void setGenome(Genome genome) {
@@ -122,7 +94,9 @@ public class Enemy extends Entity {
 
     public boolean hurt(int points) {
 
+        System.out.println("Health: " + health);
         if (health <= 0) {
+            setState(STATE_DEAD);
             return false;
         } else {
             health -= points;
@@ -172,7 +146,7 @@ public class Enemy extends Entity {
         Enemy nearest = null;
         double x = getX(), y = getY();
         for (Enemy enemy : enemies) {
-            if (enemy == this)
+            if (enemy == this || (enemy.getClass().getName() == Player.class.getName()))
                 continue;
             double tmp_x = enemy.getX(), tmp_y = enemy.getY();
             double cur_distance = Point2D.distance(x, y, tmp_x, tmp_y);
@@ -187,7 +161,6 @@ public class Enemy extends Entity {
     @Override
     public void tick() {
         enemyVisibilityNeedsCalculation = true;
-        //Player player = map.getPlayer();
         Enemy nearest_enemy = getNearestEnemy();
         System.out.println(state);
 
@@ -208,7 +181,7 @@ public class Enemy extends Entity {
             } else {
                 setState(STATE_FIRE);
             }
-        } else if (state > STATE_ASLEEP && state < STATE_READY && Math.random() < p) {
+        } else if (state > STATE_ASLEEP && state < STATE_READY) {
             // When moving, randomly change to another move state
             int s = (int) Math.round(Math.random() * 6);
             switch (s) {
@@ -282,7 +255,7 @@ public class Enemy extends Entity {
                     App.getApp().getAudio("/sound/laser0.wav").play();
                     stats.numEnemyShotsFired++;
 
-                    boolean actuallyHurt = nearest_enemy.hurt(10);
+                    nearest_enemy.hurt(10);
 
                     setState(STATE_TERMINATE);
                 }
@@ -310,7 +283,9 @@ public class Enemy extends Entity {
             case STATE_DYING:
                 if (ticksRemaining <= 0) {
                     setState(STATE_DEAD);
+                    this.delete();
                     //nearest_enemy.setKills(nearest_enemy.getKills() + 1);
+
                 }
                 break;
         }
