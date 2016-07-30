@@ -32,12 +32,11 @@ public class Map {
     private boolean exitFound = false;
     private Tile lastCollidedWall;
 
-    private final LinkedList<Enemy>  enemies = new LinkedList<Enemy>();
 
     private int numSecrets = 0;
     private int numEnemies = 0;
 
-    private EnemyController enemyController = new EnemyController();
+    private EnemyController enemyController = new EnemyController(this);
 
     public Map(HashMap<String, SoftTexture> textureCache, MessageQueue messageQueue, String mapName, Player oldPlayer, Stats stats) throws IOException {
         this.messageQueue = messageQueue;
@@ -154,7 +153,7 @@ public class Map {
                             tile.type = Tile.TYPE_NOTHING;
                             Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f);
                             addEntity(enemy);
-                            enemies.add(enemy);
+                            enemyController.addEnemy(enemy);
                             numEnemies++;
                             break;
                         case 'b':
@@ -219,7 +218,6 @@ public class Map {
         }
 
 
-        enemyController.addEnemiesList(enemies);
         enemyController.initGenetic();
         enemyController.setMap(this);
 
@@ -261,12 +259,16 @@ public class Map {
         // Move entities
         Iterator<Entity> i2 = entities.iterator();
         while (i2.hasNext()) {
+            if (i2.getClass().getName() == Enemy.class.getName())
+                continue;
             Entity entity = i2.next();
             tickEntity(entity);
             if (entity.isDeleted()) {
                 i2.remove();
             }
         }
+
+        enemyController.tickAll();
     }
 
     private boolean tickEntity(Entity entity) {
@@ -319,9 +321,7 @@ public class Map {
         return player;
     }
 
-    public List<Enemy> getEnemies() {
-        return enemies;
-    }
+
 
     public boolean isElectricityOn() {
         return electricityOn;
@@ -333,6 +333,10 @@ public class Map {
 
     public int getWidth() {
         return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
 

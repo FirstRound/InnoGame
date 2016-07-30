@@ -307,6 +307,7 @@ public class GameScene extends Scene {
                 pos.y = Math.round(pos.y);
                 if (pos.x >= 0 && pos.x < getWidth() && pos.y >= 0 && pos.y < getHeight()) {
                     crosshair.setLocation(pos.x, pos.y);
+
                 } else {
                     crosshair.setLocation(getWidth() / 2, getHeight() / 2);
                 }
