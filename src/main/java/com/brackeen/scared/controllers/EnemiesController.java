@@ -11,13 +11,13 @@ import java.util.LinkedList;
 /**
  * Created by pisatel on 27.07.16.
  */
-public class EnemyController {
+public class EnemiesController {
 
     private LinkedList<Enemy> enemies = new LinkedList<Enemy>();
     private GeneticEvolution geneticEvolution = new GeneticEvolution();
     private Map map;
 
-    public EnemyController(Map map) {
+    public EnemiesController(Map map) {
         this.map = map;
     }
 

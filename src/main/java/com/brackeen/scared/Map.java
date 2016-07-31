@@ -5,7 +5,7 @@ import com.brackeen.scared.action.Action;
 import com.brackeen.scared.action.DoorAction;
 import com.brackeen.scared.action.GeneratorAction;
 import com.brackeen.scared.action.MovableWallAction;
-import com.brackeen.scared.controllers.EnemyController;
+import com.brackeen.scared.controllers.EnemiesController;
 import com.brackeen.scared.entity.*;
 
 import java.awt.geom.Point2D;
@@ -36,7 +36,7 @@ public class Map {
     private int numSecrets = 0;
     private int numEnemies = 0;
 
-    private EnemyController enemyController = new EnemyController(this);
+    private EnemiesController enemiesController = new EnemiesController(this);
 
     public Map(HashMap<String, SoftTexture> textureCache, MessageQueue messageQueue, String mapName, Player oldPlayer, Stats stats) throws IOException {
         this.messageQueue = messageQueue;
@@ -153,7 +153,7 @@ public class Map {
                             tile.type = Tile.TYPE_NOTHING;
                             Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f);
                             addEntity(enemy);
-                            enemyController.addEnemy(enemy);
+                            enemiesController.addEnemy(enemy);
                             numEnemies++;
                             break;
                         case 'b':
@@ -218,8 +218,8 @@ public class Map {
         }
 
 
-        enemyController.initGenetic();
-        enemyController.setMap(this);
+        enemiesController.initGenetic();
+        enemiesController.setMap(this);
 
 
     }
@@ -268,7 +268,7 @@ public class Map {
             }
         }
 
-        enemyController.tickAll();
+        enemiesController.tickAll();
     }
 
     private boolean tickEntity(Entity entity) {
