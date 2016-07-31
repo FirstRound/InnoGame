@@ -10,19 +10,19 @@ public class Enemy extends Entity {
 
     public static final int NUM_IMAGES = 15;
 
-    private static final int STATE_ASLEEP = 0;
-    private static final int STATE_TERMINATE = 1;
-    private static final int STATE_MOVE_LEFT = 2;
-    private static final int STATE_MOVE_FAR_LEFT = 3;
-    private static final int STATE_MOVE_RIGHT = 4;
-    private static final int STATE_MOVE_FAR_RIGHT = 5;
-    private static final int LAST_STATE_WITH_ANIM = STATE_MOVE_FAR_RIGHT;
-    private static final int STATE_READY = 6;
-    private static final int STATE_AIM = 7;
-    private static final int STATE_FIRE = 8;
-    private static final int STATE_HURT = 9;
-    private static final int STATE_DYING = 10;
-    private static final int STATE_DEAD = 11;
+    public static final int STATE_ASLEEP = 0;
+    public static final int STATE_TERMINATE = 1;
+    public static final int STATE_MOVE_LEFT = 2;
+    public static final int STATE_MOVE_FAR_LEFT = 3;
+    public static final int STATE_MOVE_RIGHT = 4;
+    public static final int STATE_MOVE_FAR_RIGHT = 5;
+    public static final int LAST_STATE_WITH_ANIM = STATE_MOVE_FAR_RIGHT;
+    public static final int STATE_READY = 6;
+    public static final int STATE_AIM = 7;
+    public static final int STATE_FIRE = 8;
+    public static final int STATE_HURT = 9;
+    public static final int STATE_DYING = 10;
+    public static final int STATE_DEAD = 11;
 
     // @formatter:off
     //                                 state =   0   1   2   3   4   5   6   7   8   9  10  11
@@ -74,8 +74,12 @@ public class Enemy extends Entity {
     }
 
     public void initDecisionController() {
-        decisionController = new DecisionController(this);
+        decisionController = new DecisionController(this, map.getTilesMatrix());
 
+    }
+
+    public DecisionController getDecisionController() {
+        return decisionController;
     }
 
     private void setState(int state) {
@@ -97,6 +101,10 @@ public class Enemy extends Entity {
             return false;
         }
         return true;
+    }
+
+    public int getState() {
+        return state;
     }
 
     @Override

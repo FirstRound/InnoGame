@@ -5,6 +5,7 @@ import com.brackeen.scared.Tile;
 import com.brackeen.scared.entity.Enemy;
 import com.brackeen.scared.entity.Entity;
 import com.brackeen.scared.genetic.GeneticEvolution;
+import com.brackeen.scared.controllers.DecisionController.DECISION;
 
 import java.util.LinkedList;
 
@@ -56,7 +57,15 @@ public class EnemiesController {
 
     //BEGIN #ENEMY ACTION# PRIVATE METHODS
     private void doAction(Enemy enemy) {
-        enemy.tick();// make decision
+        //enemy.tick();// make decision
+        DecisionController currentDC = enemy.getDecisionController();
+        DECISION typeDecision = currentDC.getDecisionType();
+
+        switch(typeDecision) {
+            case DECISION.MOVE:
+                Point2D nextPoint = currentDC.getNextWaypoint();
+                break;
+        }
     }
 
 
