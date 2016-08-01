@@ -5,14 +5,14 @@ import com.brackeen.scared.Tile;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
-public class EnemyMovingController {
+public class MovingController {
 
 	private Point2D currentPosition = null;
 	private Point2D destPosition    = null;
 	private LinkedList<Point2D> way = new LinkedList<Point2D>();
 	private boolean[][] map;
 
-	public EnemyMovingController(Tile[][] tiles) {
+	public MovingController(Tile[][] tiles) {
 		makeBoolMap(tiles);
 	}
 
@@ -39,21 +39,36 @@ public class EnemyMovingController {
 
 	}
 
-	public Point2D getNextMovement() {
-		Point2D next = currentPosition;
-		if (!way.isEmpty()) {
-			next = way.get(0);
-			way.remove(0);
-		}
-		currentPosition = next;
-		return next;
+	public boolean hasNextMovement() {
+	return !way.isEmpty();
 	}
 
-	public boolean isAtDestPoint() {
+	public Point2D getNextMovement() {
+		if(!way.isEmpty()) {
+			return way.pop();
+		}
+		else {
+			return null;
+		}
+	}
+
+	public boolean canMoveTo(Point2D dest) {
+		return !(this.map[(int)dest.getX()][(int)dest.getY()]);
+	}
+
+	public int getMapWidth() {
+		return map.length;
+	}
+
+	public int getMapHeight() {
+		return map[0].length;
+	}
+
+	private boolean isAtDestPoint() {
 		return (currentPosition == destPosition); 
 	}
 
-	public void makeBoolMap(Tile[][] tiles) {
+	private void makeBoolMap(Tile[][] tiles) {
 		int width = tiles.length, height = tiles[0].length;
 		map = new boolean[width][height];
 		for (int i = 0 ; i < height; i++) {
@@ -69,5 +84,5 @@ public class EnemyMovingController {
 		}
 
 	}
-	
+
 }

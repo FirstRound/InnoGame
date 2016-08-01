@@ -2,11 +2,12 @@ package com.brackeen.scared.controllers;
 
 import com.brackeen.scared.Map;
 import com.brackeen.scared.Tile;
+import com.brackeen.scared.controllers.DecisionController.DECISION;
 import com.brackeen.scared.entity.Enemy;
 import com.brackeen.scared.entity.Entity;
 import com.brackeen.scared.genetic.GeneticEvolution;
-import com.brackeen.scared.controllers.DecisionController.DECISION;
 
+import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 /**
@@ -62,8 +63,8 @@ public class EnemiesController {
         DECISION typeDecision = currentDC.getDecisionType();
 
         switch(typeDecision) {
-            case DECISION.MOVE:
-                Point2D nextPoint = currentDC.getNextWaypoint();
+            case MOVE:
+                Point2D nextPoint = currentDC.getNextMovement();
                 break;
         }
     }
