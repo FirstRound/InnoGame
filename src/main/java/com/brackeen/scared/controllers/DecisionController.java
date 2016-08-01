@@ -5,7 +5,6 @@ import com.brackeen.scared.entity.Enemy;
 import com.brackeen.scared.genetic.Genome;
 
 import java.awt.geom.Point2D;
-import java.util.Random;
 
 /**
  * Created by pisatel on 22.07.16.
@@ -51,6 +50,7 @@ public class DecisionController {
             Point2D dest = this.findDestPoint();
             movingController.calculateWay(dest);
         }
+        System.out.println("No way calc!");
         return movingController.getNextMovement();
     }
 
@@ -63,13 +63,20 @@ public class DecisionController {
 
     //TODO: GET OPTIMAL POINT
     private Point2D findDestPoint() {
+        return new Point2D.Double(3, 2);
+        /*
         Random rand = new Random();
         Point2D dest = new Point2D.Double();
         dest.setLocation(rand.nextInt(movingController.getMapWidth()),movingController.getMapHeight());
+        int a = 0, b = 0;
         while(!movingController.canMoveTo(dest)) {
-            dest.setLocation(rand.nextInt(movingController.getMapWidth()),movingController.getMapHeight());
+            a = rand.nextInt(movingController.getMapWidth());
+            b = rand.nextInt(movingController.getMapHeight());
+            dest.setLocation(a, b);
         }
+        System.out.println("New: " + a + " : " + b);
         return dest;
+        */
     }
     //END PRIVATE METHODS
 

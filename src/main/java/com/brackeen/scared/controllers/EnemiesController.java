@@ -65,6 +65,7 @@ public class EnemiesController {
         switch(typeDecision) {
             case MOVE:
                 Point2D nextPoint = currentDC.getNextMovement();
+                enemy.setLocation((float)nextPoint.getX(), (float)nextPoint.getY());
                 break;
         }
     }
