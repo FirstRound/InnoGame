@@ -58,6 +58,10 @@ public class Enemy extends Entity {
         }
     }
 
+    public void flushTicks() {
+        ticksRemaining = 0;
+    }
+
     public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y) {
         super(0.25f, x, y);
         this.textures = textures;

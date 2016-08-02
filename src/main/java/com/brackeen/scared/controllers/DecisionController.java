@@ -12,6 +12,8 @@ import java.util.Random;
  */
 public class DecisionController {
 
+    private Random rand = new Random();
+
     public enum DECISION {
         MOVE, RUN, FIGHT
     }
@@ -63,13 +65,18 @@ public class DecisionController {
 
     //BEGIN PRIVATE METHODS
     private DECISION makeDecisionAboutType() {
-        return DECISION.MOVE;
+        if(rand.nextBoolean()) {
+            return DECISION.MOVE;
+        }
+        else {
+            return DECISION.FIGHT;
+        }
     }
 
     //TODO: GET OPTIMAL POINT
     private Point2D findDestPoint() {
         //return new Point2D.Double(2.0, 3.0);
-        //*
+        ///*
         Random rand = new Random();
         Point2D dest = new Point2D.Double();
         dest.setLocation(rand.nextInt(movingController.getMapWidth()),movingController.getMapHeight());

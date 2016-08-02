@@ -19,6 +19,7 @@ public class EnemiesController {
     private LinkedList<Enemy> enemies = new LinkedList<Enemy>();
     private GeneticEvolution geneticEvolution = new GeneticEvolution();
     private Map map;
+    private DECISION decision;
 
     public EnemiesController(Map map) {
         this.map = map;
@@ -63,15 +64,19 @@ public class EnemiesController {
         //enemy.tick();// make decision
         DecisionController currentDC = enemy.getDecisionController();
         DECISION typeDecision = currentDC.getDecisionType();
-
-        switch(typeDecision) {
-            case MOVE:
-                if (enemy.canMakeAction()) {
+        if (decision != typeDecision) {
+            decision = typeDecision;
+            enemy.flushTicks();
+        }
+        if (enemy.canMakeAction()) {
+            switch (typeDecision) {
+                case MOVE:
                     Point2D nextPoint = currentDC.applyNextMovement();
                     enemy.setLocation((float) nextPoint.getX(), (float) nextPoint.getY());
-
                     break;
-                }
+                case FIGHT:
+                    break;
+            }
         }
     }
 
