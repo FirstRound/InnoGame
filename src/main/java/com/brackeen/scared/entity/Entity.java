@@ -3,6 +3,8 @@ package com.brackeen.scared.entity;
 import com.brackeen.scared.SoftTexture;
 import com.brackeen.scared.Tile;
 
+import java.awt.geom.Point2D;
+
 public class Entity implements Comparable<Entity> {
 
     public static final int DEFAULT_PIXELS_PER_TILE = 64;
@@ -90,6 +92,10 @@ public class Entity implements Comparable<Entity> {
     public void setLocation(float x, float y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Point2D getLocation() {
+        return new Point2D.Double(x, y);
     }
 
     public float getDirection() {

@@ -37,8 +37,8 @@ public class Enemy extends Entity {
     private final Stats stats;
     private int state;
     private int health;
-    private int ticksRemaining;
-    private int ticks;
+    private int ticksRemaining = 0;
+    private final int TICKS = 20;
     private double aimAngle;
 
     private boolean enemyVisibilityNeedsCalculation;
@@ -47,6 +47,16 @@ public class Enemy extends Entity {
 
     private DecisionController decisionController = null;
     private Genome genome = null;
+
+    public boolean canMakeAction() {
+        if (++ticksRemaining < TICKS) {
+            return false;
+        }
+        else {
+            ticksRemaining = 0;
+            return true;
+        }
+    }
 
     public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y) {
         super(0.25f, x, y);
@@ -153,4 +163,5 @@ public class Enemy extends Entity {
 
         return false;
     }
+
 }

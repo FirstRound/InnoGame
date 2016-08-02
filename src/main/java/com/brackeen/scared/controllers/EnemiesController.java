@@ -9,6 +9,7 @@ import com.brackeen.scared.genetic.GeneticEvolution;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by pisatel on 27.07.16.
@@ -51,6 +52,7 @@ public class EnemiesController {
     }
 
     public void tickAll() {
+        List<Point2D> empty = new LinkedList<Point2D>();
         for (Enemy enemy : enemies) {
             tickEnemy(enemy);
         }
@@ -64,9 +66,12 @@ public class EnemiesController {
 
         switch(typeDecision) {
             case MOVE:
-                Point2D nextPoint = currentDC.getNextMovement();
-                enemy.setLocation((float)nextPoint.getX(), (float)nextPoint.getY());
-                break;
+                if (enemy.canMakeAction()) {
+                    Point2D nextPoint = currentDC.applyNextMovement();
+                    enemy.setLocation((float) nextPoint.getX(), (float) nextPoint.getY());
+
+                    break;
+                }
         }
     }
 

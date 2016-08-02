@@ -3,9 +3,7 @@ package com.brackeen.scared.controllers;
 import com.brackeen.scared.Tile;
 
 import java.awt.geom.Point2D;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 public class MovingController {
 
@@ -13,6 +11,9 @@ public class MovingController {
 	private Point2D destPosition    = null;
 	private LinkedList<Point2D> way = new LinkedList<Point2D>();
 	private boolean[][] map;
+	private int fatal = 2;
+
+	private final int STEP = 30;
 
 	public MovingController(Tile[][] tiles) {
 		makeBoolMap(tiles);
@@ -34,10 +35,12 @@ public class MovingController {
 	}
 
 	public Point2D getNextMovement() {
-		if(!way.isEmpty()) {
-			return way.pop();
-		}
-		else {
+
+		if (!way.isEmpty()) {
+			Point2D res = way.getFirst();
+			way.removeFirst();
+			return res;
+		} else {
 			return null;
 		}
 	}
@@ -63,53 +66,65 @@ public class MovingController {
 		System.out.println("Here we go!");
 		LinkedList<Point2D> points = new LinkedList<Point2D>();
 		//move to tile center
-		points.add(new Point2D.Double(Math.abs(currentPosition.getX())+0.5,
-				Math.abs(currentPosition.getY())+0.5));
+		points.add(new Point2D.Double(pointFloatRecounter(Math.abs(currentPosition.getX()+0.5)),
+				pointFloatRecounter(Math.abs(currentPosition.getY()+0.5))));
 
 		Queue<Point2D> queue = new LinkedList<Point2D>();
 		queue.add(points.get(0));
-		Point2D curren =  null, prev = null;
+		Point2D current =  null, prev = null;
 		List<Point2D> tmp = new LinkedList<Point2D>();
-		int prior[][] = new int[getMapHeight()][getMapWidth()];
+		int prior[][] = new int[getMapWidth()*100][getMapHeight()*100];
 		while(!queue.isEmpty()) {
-			curren = queue.peek();
+			current = queue.peek();
 			queue.remove();
-			if (prev == null) {
-				prior[(int)curren.getX()][(int)curren.getY()] = -1;
-			}
-			else {
-				prior[(int)curren.getX()][(int)curren.getY()] = toLinearArray((int)prev.getX(), (int)prev.getY());
-			}
-			if (curren.equals(to)) {
+			if ((current.getX()) == pointFloatRecounter(to.getX()) && (current.getY()) == pointFloatRecounter(to.getY())) {
 				break;
 			}
-			tmp.add(new Point2D.Double(curren.getX()+1, curren.getY()+1));
-			tmp.add(new Point2D.Double(curren.getX()-1, curren.getY()-1));
-			tmp.add(new Point2D.Double(curren.getX()+1, curren.getY()-1));
-			tmp.add(new Point2D.Double(curren.getX()-1, curren.getY()+1));
-			tmp.add(new Point2D.Double(curren.getX()+1, curren.getY()));
-			tmp.add(new Point2D.Double(curren.getX(), curren.getY()+1));
-			tmp.add(new Point2D.Double(curren.getX()-1, curren.getY()));
-			tmp.add(new Point2D.Double(curren.getX(), curren.getY()-1));
+			tmp.add(new Point2D.Double((current.getX()+STEP), (current.getY()+STEP)));
+			tmp.add(new Point2D.Double((current.getX()+STEP), (current.getY())));
+			tmp.add(new Point2D.Double((current.getX()), (current.getY()+STEP)));
+			tmp.add(new Point2D.Double((current.getX()-STEP), (current.getY()-STEP)));
+			tmp.add(new Point2D.Double((current.getX()-STEP), (current.getY())));
+			tmp.add(new Point2D.Double((current.getX()), (current.getY()-STEP)));
+			tmp.add(new Point2D.Double((current.getX()+STEP), (current.getY()-STEP)));
+			tmp.add(new Point2D.Double((current.getX()-STEP), (current.getY()+STEP)));
 
 			for (Point2D point : tmp) {
-				if (prior[(int)point.getX()][(int)point.getY()] == 0 && canMoveTo(point)) {
+				int a = (int)(point.getX()), b = (int)(point.getY());
+				Point2D.Double p = new Point2D.Double(toNormalFloatRecounter((int)point.getX()), toNormalFloatRecounter((int)point.getY()));
+				if (canMoveTo(p) && prior[a][b] == 0) {
+					if (prev == null) {
+						prior[(int)(point.getX())][(int)(point.getY())] = -1;
+					}
+					else {
+						int la = toLinearArray((int)(current.getX()), (int)(current.getY()));
+						prior[(int)(point.getX())][(int)(point.getY())] = la;
+					}
 					queue.add(point);
 				}
 			}
 
-			prev = curren;
+			prev = current;
 			tmp.clear();
 		}
 
 
-		System.out.println(" #x: " + curren.getX() + " y: " + curren.getY());
-		while (prior[(int)curren.getX()][(int)curren.getY()] != -1) {
-
-			points.addFirst(curren);
-			curren = fromLinearArray(prior[(int)curren.getX()][(int)curren.getY()]) ;
+		//8:11, 8:6, 3:9 problems
+ 		System.out.println(" #x: " + current.getX() + " y: " + current.getY());
+		int a = 0;
+		while (prior[(int)(current.getX())][(int)(current.getY())] != -1 && prior[(int)(current.getX())][(int)(current.getY())] != 0) {
+			points.addFirst(new Point2D.Double(toNormalFloatRecounter((int)current.getX()), toNormalFloatRecounter((int)current.getY())));
+			if ((int)(current.getX()) >= 1600 || (int)(current.getY()) >= 1600)
+					a = 56;
+			current = fromLinearArray(prior[(int)(current.getX())]
+					[(int)(current.getY())]) ;
+			a++;
+			//current = new Point2D.Double(pointFloatRecounter(current.getX()),pointFloatRecounter(current.getY()));
 		}
-		points.addFirst(points.getLast());
+
+		Point2D po = new Point2D.Double(toNormalFloatRecounter((int)points.getLast().getX()), toNormalFloatRecounter((int)points.getLast().getY()));
+		points.addFirst(po); //TODO: DIVIDE INTO 4 STEPS!!!
+
 		points.removeLast();
 
 
@@ -123,16 +138,42 @@ public class MovingController {
 	}
 
 	private int toLinearArray(int x, int y) {
-		return x * map.length + y;
+		return x * (map.length*100) + y;
+	}
+
+	private int pointFloatRecounter(double coord) {
+		return (int)(coord*100);
+	}
+
+	private double toNormalFloatRecounter(int coord) {
+		return coord/100.0;
 	}
 
 	private Point2D fromLinearArray(int i) {
-		return new Point2D.Double((i)/map.length, (i)%map.length);
+		//i = (int)toNormalFloatRecounter(i);
+		return new Point2D.Double((i)/(map.length*100), (i)%(map.length*100));
 	}
 
-	private boolean isAtDestPoint() {
-		return (currentPosition == destPosition); 
+	private Point2D rMove() {
+		ArrayList<Point2D> points = new ArrayList<Point2D>();
+		Random rand = new Random();
+		Point2D point = new Point2D.Double();
+		int dec = rand.nextInt(8);
+		points.add(new Point2D.Double(currentPosition.getX()+1, currentPosition.getY()+1));
+		points.add(new Point2D.Double(currentPosition.getX()-1, currentPosition.getY()-1));
+		points.add(new Point2D.Double(currentPosition.getX()+1, currentPosition.getY()-1));
+		points.add(new Point2D.Double(currentPosition.getX()-1, currentPosition.getY()+1));
+		points.add(new Point2D.Double(currentPosition.getX()+1, currentPosition.getY()));
+		points.add(new Point2D.Double(currentPosition.getX(), currentPosition.getY()+1));
+		points.add(new Point2D.Double(currentPosition.getX()-1, currentPosition.getY()));
+		points.add(new Point2D.Double(currentPosition.getX(), currentPosition.getY()-1));
+		point = points.get(dec);
+		while(!canMoveTo(point)) {
+			point = points.get(dec);
+		}
+		return point;
 	}
+
 
 	private void makeBoolMap(Tile[][] tiles) {
 		int width = tiles.length, height = tiles[0].length;
