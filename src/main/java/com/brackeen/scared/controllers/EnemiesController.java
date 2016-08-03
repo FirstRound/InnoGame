@@ -11,6 +11,7 @@ import com.brackeen.scared.genetic.GeneticEvolution;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by pisatel on 27.07.16.
@@ -22,6 +23,8 @@ public class EnemiesController {
     private Map map;
     private DECISION decision;
 
+    private boolean needNextGeneration = false;
+
     public EnemiesController(Map map) {
         this.map = map;
     }
@@ -29,10 +32,7 @@ public class EnemiesController {
     public void initGenetic() {
         geneticEvolution.generateStartPopulation(enemies.size());
 
-        for (Enemy enemy : enemies) {
-            enemy.setGenome(geneticEvolution.getNextGenome());
-            enemy.initDecisionController();
-        }
+        setGenomeToEnemies(enemies);
     }
 
 
@@ -54,21 +54,29 @@ public class EnemiesController {
     }
 
     public void tickAll() {
-        List<Point2D> empty = new LinkedList<Point2D>();
-        for (Enemy enemy : enemies) {
-            if (!enemy.isDeleted()) {
-                tickEnemy(enemy);
+        List<Enemy> aliveList = getAliveEnemies();
+        if(aliveList.size() > 1) {
+            for (Enemy enemy : enemies) {
+                if (!enemy.isDeleted()) {
+                    tickEnemy(enemy);
+                }
             }
+        }
+        else {
+            if(aliveList.size() == 1){
+                aliveList.get(0).calcStat();
+            }
+                generateNewPopulation();
         }
 
     }
 
     //BEGIN #ENEMY ACTION# PRIVATE METHODS
     private void doAction(Enemy enemy) {
-        //enemy.tick();// make decision
         DecisionController currentDC = enemy.getDecisionController();
         DECISION typeDecision = currentDC.getDecisionType();
-        if (enemy.canMakeAction()) {
+        List<Enemy> aliveEnemies = getAliveEnemiesForEnemy(enemy);
+        if (enemy.canMakeAction() && aliveEnemies.size() > 0) {
             switch (typeDecision) {
                 case MOVE:
                     enemy.setState(Enemy.STATE_TERMINATE);
@@ -76,32 +84,64 @@ public class EnemiesController {
                     enemy.setLocation((float) nextPoint.getX(), (float) nextPoint.getY());
                     break;
                 case FIGHT:
-                    List<Enemy> aliveEnemies = getAliveEnemies();
-                    if (aliveEnemies.size() > 0) {
                         Enemy fightEnemy = currentDC.selectEnemyForFight(aliveEnemies);
                         if (fightEnemy != null) {
                             enemy.setState(Enemy.STATE_FIRE);
                             App.getApp().getAudio("/sound/laser0.wav").play();
                             int damage = currentDC.calcRealDamage(enemy.getDamage());
                             fightEnemy.hurt(damage);
+                            if (fightEnemy.isDeleted())
+                                enemy.addKill();
                             enemy.addPoints(damage);
                         }
                         else {
                             break;
                         }
-                    }
                     break;
             }
+
         }
         enemy.tick();
+
     }
 
 
     //END #ENEMY ACTION# PRIVATE METHODS
 
     //BEGIN #TICK ACTION# PRIVATE METHODS
+
+    private void generateNewPopulation() {
+        System.out.println("++++++++++!!!NEW GENERATION!!!++++++++++");
+        Random rand = new Random();
+        geneticEvolution.makeNewPopulation(enemies);
+        int size = enemies.size();
+        enemies.clear();
+        for (int i = 0; i < size; i++) {
+            map.createEnemy(new Point2D.Double(rand.nextInt(map.getWidth()),rand.nextInt(map.getHeight())));
+        }
+        setGenomeToEnemies(enemies);
+    }
+
+    private void setGenomeToEnemies(List<Enemy> enemies) {
+        for (Enemy enemy : enemies) {
+            enemy.setGenome(geneticEvolution.getNextGenome());
+            enemy.initDecisionController();
+        }
+    }
+
+    private List<Enemy> getAliveEnemiesForEnemy(Enemy enemy) {
+        List<Enemy> list = new LinkedList<Enemy>();
+        for (Enemy e : enemies) {
+            if(!e.isDeleted() && !e.equals(enemy)) {
+                list.add(e);
+            }
+        }
+        return list;
+    }
+
     private List<Enemy> getAliveEnemies() {
         List<Enemy> list = new LinkedList<Enemy>();
+        int counter = 0;
         for (Enemy e : enemies) {
             if(!e.isDeleted()) {
                 list.add(e);

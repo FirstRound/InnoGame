@@ -2,7 +2,7 @@ package com.brackeen.scared;
 
 import java.util.concurrent.TimeUnit;
 
-public class Stats {
+public class Stats implements Comparable<Stats>{
     public int numDeaths;
     public int numShotsFired;
     public int numShotsFiredHit;
@@ -10,6 +10,10 @@ public class Stats {
     public int numEnemyShotsFiredHit;
     public boolean cheated;
     public long startTime;
+    public long aliveTime;
+    public int health = 100;
+
+    private long totalScore;
 
     public Stats() {
         startTime = System.nanoTime();
@@ -52,6 +56,15 @@ public class Stats {
         );
     }
 
+    public void setDeathTime() {
+        aliveTime = System.nanoTime() - startTime;
+        calcTotalScore();
+    }
+
+    public long getDeathTime() {
+        return aliveTime;
+    }
+
     private static String padLine(String line, int minLength) {
         // Poor man's center on the colon
         if (line != null && line.length() < minLength) {
@@ -62,5 +75,22 @@ public class Stats {
             line = sb.toString();
         }
         return line;
+    }
+
+    private void calcTotalScore() {
+        long alive = aliveTime > 0 ? (long)(aliveTime*10e-9) : (long)Integer.MAX_VALUE;
+        totalScore = 70*numDeaths + 2*numShotsFiredHit + 5*health + alive;
+    }
+
+    public long getTotalScore() {
+        return totalScore;
+    }
+
+    @Override
+    public int compareTo(Stats stat) {
+        long a = getTotalScore();
+        long b = stat.getTotalScore();
+
+        return a > b ? +1 : a < b ? -1 : 0;
     }
 }

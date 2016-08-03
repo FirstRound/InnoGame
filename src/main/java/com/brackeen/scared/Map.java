@@ -31,6 +31,7 @@ public class Map {
     private boolean electricityOn = true;
     private boolean exitFound = false;
     private Tile lastCollidedWall;
+    private HashMap<String, SoftTexture> textureCache;
 
 
     private int numSecrets = 0;
@@ -41,10 +42,8 @@ public class Map {
     public Map(HashMap<String, SoftTexture> textureCache, MessageQueue messageQueue, String mapName, Player oldPlayer, Stats stats) throws IOException {
         this.messageQueue = messageQueue;
 
-        SoftTexture[] enemyTextures = new SoftTexture[Enemy.NUM_IMAGES];
-        for (int i = 0; i < Enemy.NUM_IMAGES; i++) {
-            enemyTextures[i] = textureCache.get("/enemy/" + i + ".png");
-        }
+        this.textureCache = textureCache;
+
 
         defaultFloorTexture = textureCache.get("wall00.png");
         generatorOnTexture = textureCache.get("generator01.png");
@@ -150,11 +149,7 @@ public class Map {
                             player.setLocation(x + 0.5f, y + 0.5f);
                             break;
                         case '^':
-                            tile.type = Tile.TYPE_NOTHING;
-                            Enemy enemy = new Enemy(this, stats, enemyTextures, x + 0.5f, y + 0.5f);
-                            addEntity(enemy);
-                            enemiesController.addEnemy(enemy);
-                            numEnemies++;
+                            createEnemy(new Point2D.Double(x, y));
                             break;
                         case 'b':
                             tile.type = Tile.TYPE_NOTHING;
@@ -615,5 +610,18 @@ public class Map {
             x += dx;
             y += dy;
         }
+    }
+
+    public void createEnemy(Point2D position) {
+        Tile tile = new Tile();
+        tile.type = Tile.TYPE_NOTHING;
+        SoftTexture[] enemyTextures = new SoftTexture[Enemy.NUM_IMAGES];
+        for (int i = 0; i < Enemy.NUM_IMAGES; i++) {
+            enemyTextures[i] = textureCache.get("/enemy/" + i + ".png");
+        }
+        Enemy enemy = new Enemy(this, new Stats(), enemyTextures, (float)position.getX() + 0.5f, (float)position.getY() + 0.5f);
+        addEntity(enemy);
+        enemiesController.addEnemy(enemy);
+        numEnemies++;
     }
 }

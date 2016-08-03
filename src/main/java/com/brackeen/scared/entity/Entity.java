@@ -144,6 +144,7 @@ public class Entity implements Comparable<Entity> {
     }
 
     // Sort back-to-front
+    @Override
     public int compareTo(Entity t) {
         if (distanceFromCamera < t.distanceFromCamera) {
             return 1;

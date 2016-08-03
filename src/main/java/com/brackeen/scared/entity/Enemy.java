@@ -6,7 +6,7 @@ import com.brackeen.scared.Stats;
 import com.brackeen.scared.controllers.DecisionController;
 import com.brackeen.scared.genetic.Genome;
 
-public class Enemy extends Entity {
+public class Enemy extends Entity{
 
     public static final int NUM_IMAGES = 15;
 
@@ -36,7 +36,6 @@ public class Enemy extends Entity {
     private final Map map;
     private final Stats stats;
     private int state;
-    private int health = 100;
     private int ticksRemaining = 0;
     private final int TICKS = 20;
     private double aimAngle;
@@ -66,13 +65,11 @@ public class Enemy extends Entity {
         ticksRemaining = 0;
     }
 
+    //all damage to other
     public void addPoints(int points) {
-        this.points += points;
+        this.stats.numShotsFiredHit += points;
     }
 
-    public int getPoints() {
-        return points;
-    }
 
     public int getDamage() {
         return damage;
@@ -120,11 +117,13 @@ public class Enemy extends Entity {
     }
 
     public boolean hurt(int points) {
-        health -= points;
-        System.out.println("Health: " + health);
-        if (health <= 0) {
+        stats.health -= points;
+        System.out.println("Health: " + stats.health);
+        if (stats.health <= 0) {
+            stats.health = 0;
             setState(STATE_DYING);
             delete(); // delete enemy from map
+            stats.setDeathTime();
             return false;
         }
         return true;
@@ -156,15 +155,15 @@ public class Enemy extends Entity {
 
 
     private boolean isAlive() {
-        return state != STATE_DEAD;
+        return !isDeleted();
     }
 
-    private void setKills(int i) {
-        this.kills = i;
+    public void addKill() {
+        this.stats.numDeaths++;
     }
 
     private int getKills() {
-        return kills;
+        return this.stats.numDeaths;
     }
 
     //TODO: try to understand
@@ -183,6 +182,14 @@ public class Enemy extends Entity {
         }
 
         return false;
+    }
+
+    public void calcStat() {
+        stats.setDeathTime();
+    }
+
+    public Stats getStatistics() {
+        return stats;
     }
 
 }

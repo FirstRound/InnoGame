@@ -87,4 +87,8 @@ public class Genome {
     public String toString() {
         return genome.toString();
     }
+
+    public boolean[] getRawGenomeArray() {
+        return genome;
+    }
 }

@@ -1,13 +1,16 @@
 package com.brackeen.scared.genetic;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import com.brackeen.scared.entity.Enemy;
+
+import java.util.*;
 
 /**
  * Created by pisatel on 22.07.16.
  */
 public class GeneticEvolution {
     private Queue<Genome> genomes = new LinkedList<Genome>();
+
+    private final int MAX_MUTATION_COUNT = 30;
 
     public void generateStartPopulation(int size) {
         for (int i = 0; i < size; i++) {
@@ -27,5 +30,46 @@ public class GeneticEvolution {
 
     public Genome getNextGenome() {
         return genomes.peek();
+    }
+
+
+    public void makeNewPopulation(LinkedList<Enemy> enemies) {
+        arrangeEnemiesByStat(enemies);
+        //cross first 2 with each other
+    }
+
+    private void arrangeEnemiesByStat(LinkedList<Enemy> enemies) {
+        Comparator comp = new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                return ((Enemy)o1).getStatistics().compareTo(((Enemy)o2).getStatistics());
+            }
+        };
+        Collections.sort(enemies, comp);
+
+    }
+
+    private Genome getChild(Genome mother, Genome father) {
+        boolean[] childGenome = new boolean[Genome.GENOME_SIZE];
+        Random rand = new Random();
+        int crossPoint = rand.nextInt(Genome.GENOME_SIZE-6) + 3;
+        boolean[] motherPart = Arrays.copyOfRange(mother.getRawGenomeArray(), 0, crossPoint-1);
+        boolean[] fatherPart = Arrays.copyOfRange(mother.getRawGenomeArray(),
+                                                    crossPoint, Genome.GENOME_SIZE-1);
+        for (int i = 0; i < crossPoint; i++) {
+
+            childGenome[i] = motherPart[i];
+        }
+        for (int i = crossPoint; i < Genome.GENOME_SIZE; i++) {
+
+            childGenome[i] = fatherPart[i-crossPoint];
+        }
+
+        //mutate
+        int countOfMutation = rand.nextInt(MAX_MUTATION_COUNT);
+        for (int i = 0; i < countOfMutation; i++) {
+            childGenome[rand.nextInt(Genome.GENOME_SIZE)] = rand.nextBoolean();
+        }
+        return new Genome(childGenome);
     }
 }
