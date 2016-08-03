@@ -36,10 +36,14 @@ public class Enemy extends Entity {
     private final Map map;
     private final Stats stats;
     private int state;
-    private int health;
+    private int health = 100;
     private int ticksRemaining = 0;
     private final int TICKS = 20;
     private double aimAngle;
+
+    private final int damage = 10;
+
+    private int points = 0;
 
     private boolean enemyVisibilityNeedsCalculation;
     private boolean isEnemyVisible;
@@ -62,6 +66,18 @@ public class Enemy extends Entity {
         ticksRemaining = 0;
     }
 
+    public void addPoints(int points) {
+        this.points += points;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
     public Enemy(Map map, Stats stats, SoftTexture[] textures, float x, float y) {
         super(0.25f, x, y);
         this.textures = textures;
@@ -73,9 +89,6 @@ public class Enemy extends Entity {
         //setTextureScale(getTextureScale() / 2); // For 128x128 textures
         setZ(-4f / DEFAULT_PIXELS_PER_TILE);
         setState(STATE_ASLEEP);
-        health = 100;
-        STATE_TICKS[STATE_READY] = 10;
-        STATE_TICKS[STATE_AIM] = 24;
 
     }
 
@@ -96,21 +109,21 @@ public class Enemy extends Entity {
         return decisionController;
     }
 
-    private void setState(int state) {
+    public void setState(int state) {
         if (this.state != state) {
+            ticksRemaining = 0;
             this.state = state;
             if (state == STATE_DEAD) {
                 setRadius(0); // Prevent future collisions
             }
-            ticksRemaining = STATE_TICKS[state];
         }
     }
 
     public boolean hurt(int points) {
-
         health -= points;
         System.out.println("Health: " + health);
         if (health <= 0) {
+            setState(STATE_DYING);
             delete(); // delete enemy from map
             return false;
         }
@@ -133,7 +146,11 @@ public class Enemy extends Entity {
 
     @Override
     public void tick() {
-        //TODO: I'm tired=(
+        int textureIndex = STATE_TEXTURE[state];
+        if (state <= LAST_STATE_WITH_ANIM && ((ticksRemaining / 12) & 1) == 0) {
+            textureIndex++;
+        }
+        setTexture(textures[textureIndex]);
     }
 
 

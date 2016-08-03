@@ -1,5 +1,6 @@
 package com.brackeen.scared.controllers;
 
+import com.brackeen.app.App;
 import com.brackeen.scared.Map;
 import com.brackeen.scared.Tile;
 import com.brackeen.scared.controllers.DecisionController.DECISION;
@@ -55,8 +56,11 @@ public class EnemiesController {
     public void tickAll() {
         List<Point2D> empty = new LinkedList<Point2D>();
         for (Enemy enemy : enemies) {
-            tickEnemy(enemy);
+            if (!enemy.isDeleted()) {
+                tickEnemy(enemy);
+            }
         }
+
     }
 
     //BEGIN #ENEMY ACTION# PRIVATE METHODS
@@ -64,27 +68,48 @@ public class EnemiesController {
         //enemy.tick();// make decision
         DecisionController currentDC = enemy.getDecisionController();
         DECISION typeDecision = currentDC.getDecisionType();
-        if (decision != typeDecision) {
-            decision = typeDecision;
-            enemy.flushTicks();
-        }
         if (enemy.canMakeAction()) {
             switch (typeDecision) {
                 case MOVE:
+                    enemy.setState(Enemy.STATE_TERMINATE);
                     Point2D nextPoint = currentDC.applyNextMovement();
                     enemy.setLocation((float) nextPoint.getX(), (float) nextPoint.getY());
                     break;
                 case FIGHT:
+                    List<Enemy> aliveEnemies = getAliveEnemies();
+                    if (aliveEnemies.size() > 0) {
+                        Enemy fightEnemy = currentDC.selectEnemyForFight(aliveEnemies);
+                        if (fightEnemy != null) {
+                            enemy.setState(Enemy.STATE_FIRE);
+                            App.getApp().getAudio("/sound/laser0.wav").play();
+                            int damage = currentDC.calcRealDamage(enemy.getDamage());
+                            fightEnemy.hurt(damage);
+                            enemy.addPoints(damage);
+                        }
+                        else {
+                            break;
+                        }
+                    }
                     break;
             }
         }
+        enemy.tick();
     }
-
 
 
     //END #ENEMY ACTION# PRIVATE METHODS
 
     //BEGIN #TICK ACTION# PRIVATE METHODS
+    private List<Enemy> getAliveEnemies() {
+        List<Enemy> list = new LinkedList<Enemy>();
+        for (Enemy e : enemies) {
+            if(!e.isDeleted()) {
+                list.add(e);
+            }
+        }
+        return list;
+    }
+
     private boolean tickEnemy(Enemy enemy) {
         Tile oldTile = enemy.getTile();
         doAction(enemy);

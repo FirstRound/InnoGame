@@ -5,6 +5,8 @@ import com.brackeen.scared.entity.Enemy;
 import com.brackeen.scared.genetic.Genome;
 
 import java.awt.geom.Point2D;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -13,6 +15,8 @@ import java.util.Random;
 public class DecisionController {
 
     private Random rand = new Random();
+
+    private final int ROUND = 360;
 
     public enum DECISION {
         MOVE, RUN, FIGHT
@@ -61,6 +65,20 @@ public class DecisionController {
         return point;
     }
 
+
+    public Enemy selectEnemyForFight(List<Enemy> enemies) {
+        List<Enemy> list = getVisibleEnemies(enemies);
+        if (list.size() > 0) {
+            int enemyNum = rand.nextInt(list.size());
+            return list.get(enemyNum);
+        }
+        return null;
+    }
+
+    public int calcRealDamage(int damage) {
+        return rand.nextInt(damage);
+    }
+
     //END PUBLIC METHODS
 
     //BEGIN PRIVATE METHODS
@@ -90,6 +108,25 @@ public class DecisionController {
         return dest;
         //*/
 
+    }
+
+    private List<Enemy> getVisibleEnemies(List<Enemy> enemies) {
+        List<Enemy> list = new LinkedList<Enemy>();
+        for (Enemy en : enemies) {
+            if(isVisible(enemy, en)) {
+                list.add(en);
+            }
+        }
+        return list;
+    }
+
+    private boolean isVisible(Enemy one, Enemy two) {
+        if (one != two) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     //END PRIVATE METHODS
 
