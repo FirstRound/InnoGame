@@ -29,13 +29,20 @@ public class GeneticEvolution {
 
 
     public Genome getNextGenome() {
-        return genomes.peek();
+        Genome g = genomes.peek();
+        genomes.remove();
+        return g;
     }
 
 
     public void makeNewPopulation(LinkedList<Enemy> enemies) {
+        genomes.clear();
         arrangeEnemiesByStat(enemies);
-        //cross first 2 with each other
+        for (int i = 0; i < enemies.size()/2; i++) {
+            for (int j = 0; j < enemies.size()/2; j++) {
+                genomes.add(getChild(enemies.get(i).getGenome(), enemies.get(j).getGenome()));
+            }
+        }
     }
 
     private void arrangeEnemiesByStat(LinkedList<Enemy> enemies) {
@@ -53,9 +60,9 @@ public class GeneticEvolution {
         boolean[] childGenome = new boolean[Genome.GENOME_SIZE];
         Random rand = new Random();
         int crossPoint = rand.nextInt(Genome.GENOME_SIZE-6) + 3;
-        boolean[] motherPart = Arrays.copyOfRange(mother.getRawGenomeArray(), 0, crossPoint-1);
+        boolean[] motherPart = Arrays.copyOfRange(mother.getRawGenomeArray(), 0, crossPoint);
         boolean[] fatherPart = Arrays.copyOfRange(mother.getRawGenomeArray(),
-                                                    crossPoint, Genome.GENOME_SIZE-1);
+                                                    crossPoint, Genome.GENOME_SIZE);
         for (int i = 0; i < crossPoint; i++) {
 
             childGenome[i] = motherPart[i];
